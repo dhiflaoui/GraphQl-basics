@@ -5,8 +5,11 @@ const typeDefs = `
   type Query {
     greeting(name: String): String!
     add(a: Float!, b:Float!): String!
+    addToArray(numbers:[Float!]!): Float!
+    grades:[Int!]!
     me: User!
     post: Post!
+
   }
   
   type User {
@@ -27,6 +30,16 @@ const resolvers = {
   Query: {
     greeting: (_, { name }) => `Hello ${name || "World"}`,
     add: (_, { a, b }) => `My result is ${a + b || "null"}`,
+
+    addToArray(parent, args, context, info) {
+      if (args.numbers.length === 0) {
+        return 0;
+      }
+      return args.numbers.reduce((accumulateur, currentValue) => {
+        return accumulateur + currentValue;
+      });
+    },
+    grades: () => [99, 80, 100],
     me() {
       return {
         id: "1233365",
