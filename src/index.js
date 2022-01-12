@@ -1,15 +1,38 @@
 import { GraphQLServer } from "graphql-yoga";
 
+//user data
+const users = [
+  {
+    id: "1",
+    name: "Andrew",
+    email: "anderson@gmail.com",
+    age: 27,
+  },
+  {
+    id: "2",
+    name: "sarah",
+    email: "anderson@gmail.com",
+    age: 23,
+  },
+  {
+    id: "3",
+    name: "mike",
+    email: "mike@gmail.com",
+    age: 22,
+  },
+];
+
 //type definition (schema)
+/* greeting(name: String): String!
+    add(a: Float!, b:Float!): String!
+    grades:[Int!]! */
+
 const typeDefs = `
   type Query {
-    greeting(name: String): String!
-    add(a: Float!, b:Float!): String!
-    addToArray(numbers:[Float!]!): Float!
-    grades:[Int!]!
+    users(query: String):[User!]!
     me: User!
     post: Post!
-
+    addToArray(numbers:[Float!]!): Float!
   }
   
   type User {
@@ -28,9 +51,14 @@ const typeDefs = `
 // Resolvers
 const resolvers = {
   Query: {
-    greeting: (_, { name }) => `Hello ${name || "World"}`,
-    add: (_, { a, b }) => `My result is ${a + b || "null"}`,
-
+    users(parent, args, context, info) {
+      if (!args.query) {
+        return users;
+      }
+      return users.filter((user) => {
+        return user.name.toLowerCase().includes(args.query.toLowerCase());
+      });
+    },
     addToArray(parent, args, context, info) {
       if (args.numbers.length === 0) {
         return 0;
@@ -39,7 +67,10 @@ const resolvers = {
         return accumulateur + currentValue;
       });
     },
-    grades: () => [99, 80, 100],
+    /* 
+    greeting: (_, { name }) => `Hello ${name || "World"}`,
+    add: (_, { a, b }) => `My result is ${a + b || "null"}`,
+    grades: () => [99, 80, 100], 
     me() {
       return {
         id: "1233365",
@@ -55,7 +86,9 @@ const resolvers = {
         body: "This is the body of the post",
         published: true,
       };
+
     },
+    */
   },
 };
 
