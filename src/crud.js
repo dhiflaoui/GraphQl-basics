@@ -3,9 +3,9 @@ import uuidV4 from "uuid/v4";
 // Scalar types - String, Boolean, Int, Float, ID
 
 // Demo user data
-const users = [
+let users = [
   {
-    id: "1",
+    id: "4",
     name: "anderson",
     email: "anderson@gmail.com",
     age: 27,
@@ -22,20 +22,20 @@ const users = [
   },
 ];
 
-const posts = [
+let posts = [
   {
     id: "10",
     title: "GraphQL post 1",
     body: "This is how to use GraphQL...",
     published: true,
-    author: "1",
+    author: "4",
   },
   {
     id: "11",
     title: "GraphQL post 2",
     body: "This is an advanced GraphQL post...",
     published: false,
-    author: "1",
+    author: "4",
   },
   {
     id: "12",
@@ -45,11 +45,11 @@ const posts = [
     author: "2",
   },
 ];
-const comments = [
+let comments = [
   {
     id: "20",
     text: "Comment one",
-    author: "1",
+    author: "4",
     post: "10",
   },
   {
@@ -78,8 +78,11 @@ const typeDefs = `
 
     type Mutation{
         createUser(userData: CreateUserInput!): User!
+        deleteUser(id: ID!): User!
         createPost(postData: CreatePostInput!): Post!
+        deletePost(id: ID!): Post!
         createComment( commentData:CreateCommentInput!): Comment!
+        deleteComment(id: ID!): Comment!
     }
 
     input CreateUserInput{
@@ -193,7 +196,6 @@ const resolvers = {
       users.push(user);
       return user;
     },
-
     //create post
     createPost(parent, args, ctx, info) {
       const userExist = users.some((user) => user.id === args.postData.author);
@@ -236,6 +238,56 @@ const resolvers = {
       return comment;
     },
     /**************************Delete************************************/
+    //deleteUser
+    deleteUser(parent, args, ctx, info) {
+      const userIndex = users.findIndex((user) => user.id === args.id);
+
+      if (userIndex === -1) {
+        throw new Error(`Unable to find user`);
+      }
+      const deleteUsers = users.splice(userIndex, 1);
+
+      posts = posts.filter((post) => {
+        const match = post.author === args.id;
+        if (match) {
+          comments = comments.filter((comment) => comment.post !== post.id);
+        }
+        return !match;
+      });
+
+      comments = comments.filter((comment) => comment.author !== args.id);
+      return deleteUsers[0];
+    },
+
+    //deletePost
+    deletePost(parent, args, ctx, info) {
+      const postIndex = posts.findIndex((post) => post.id === args.id);
+
+      if (postIndex === -1) {
+        throw new Error(`Unable to find post`);
+      }
+
+      const deletedPosts = posts.splice(postIndex, 1);
+
+      comments = comments.filter((comment) => comment.post !== args.id);
+
+      return deletedPosts[0];
+    },
+
+    //deleteComment
+    deleteComment(parent, args, ctx, info) {
+      const commentIndex = comments.findIndex(
+        (comment) => comment.id === args.id
+      );
+
+      if (commentIndex === -1) {
+        throw new Error(`Unable to find comment`);
+      }
+
+      const deletedComments = comments.splice(commentIndex, 1);
+
+      return deletedComments[0];
+    },
   },
   //Relational Data Basics
   Post: {
