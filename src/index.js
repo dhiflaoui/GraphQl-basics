@@ -7,7 +7,9 @@ import Post from "./resolvers/Post";
 import Comment from "./resolvers/Comment";
 
 const server = new GraphQLServer({
+  //schema
   typeDefs: "./src/schema.graphql",
+  //resolver
   resolvers: {
     Query,
     Mutation,
@@ -15,6 +17,7 @@ const server = new GraphQLServer({
     Post,
     Comment,
   },
+  //db connect
   context: {
     db,
   },
