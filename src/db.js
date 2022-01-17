@@ -36,7 +36,7 @@ const posts = [
     id: "12",
     title: "GraphQL post 3",
     body: "",
-    published: false,
+    published: true,
     author: "2",
   },
 ];
